@@ -17,25 +17,27 @@ const Select = styled.select`
 `
 
 
-const useSelectMonedas = (label) => {
+const useSelectMonedas = (label, opciones) => {
 //-----------------------| Funcion que se exportara |-----------------------
     const [state, setState] = useState('')
-    //--->Nota: Funciones='{}'  ;   html='()'
+    //--->Nota: return de funciones='{}'  ;   return de react='()'
     const SelectMonedas = () => (
         <>
             <Label>{label}</Label>
             <Select
                 value={state}
-                onChange={(e)=>setState(e.target.value)}
+                onChange={(e) => setState(e.target.value)}
             >
                 <option value=''>Seleccione</option>
-                <option></option>
+                {opciones.map((opcion) => (
+                    <option key={opcion.id} value={opcion.id}>{opcion.nombre}</option>
+                ))}
             </Select>
         </>
     )
 //-----------------------| Valor que regresara |-----------------------
     //---> Se exporta la funcion como arreglo
-    return ([SelectMonedas])
+    return ([state, SelectMonedas])
 }
 
 export default useSelectMonedas

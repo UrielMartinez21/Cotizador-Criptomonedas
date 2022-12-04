@@ -1,8 +1,11 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import styled from '@emotion/styled'
 import ImagenCripto from './img/imagen-criptos.png'
 import Formulario from './components/Formulario'
+import Resultado from './components/Resultado'
+import Spinner from './components/Spinner'
 
+//------------------------------| Styled components |------------------------------
 const Heading = styled.h1`
   font-family: 'Lato', sans-serif;
   color: #FFF;
@@ -41,12 +44,38 @@ const Imagen = styled.img`
 `
 
 const App = () => {
+//------------------------------| Uso de estados |------------------------------
+  const [monedas, setMonedas] = useState({})                  // Criptomoneda y conversion
+  const [resultado, setResultado] = useState({})              // Datos de la moneda y su conversion
+  const [isCargando, setIsCargando] = useState(false)         // Mostrara animacion de carga
+
+//------------------------------| Envio de datos |------------------------------
+  useEffect(() => { 
+    if (Object.keys(monedas).length > 0) {                    // Como es un objeto se usa asi y no '[]'
+      const cotizarCripto = async () => {
+        setIsCargando(true)
+        setResultado({})                                      // Se reinicia el resultado
+        const { moneda, criptomoneda } = monedas
+        const url = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${criptomoneda}&tsyms=${moneda}`
+        const respuesta = await fetch(url)                    // Respuesta del servidor
+        const resultado= await respuesta.json()               // Conversion a JSON
+        setResultado(resultado.DISPLAY[criptomoneda][moneda]) // Almacena en un objeto
+        setIsCargando(false)
+      }
+      cotizarCripto()                                         // Ejecucion de la funcion
+    }
+  }, [monedas])
+
+//------------------------------| Valor que regresara |------------------------------
   return (
     <Contenedor>
       <Imagen src={ImagenCripto} alt='Imagen de criptos'/>
       <div>
         <Heading>Cotiza Criptomonedas al instante</Heading>
-        <Formulario/>
+        <Formulario setMonedas={setMonedas} />
+
+        {isCargando && (<Spinner />)}
+        {resultado.PRICE && (<Resultado resultado={resultado} />)}
       </div>
     </Contenedor>
   )
